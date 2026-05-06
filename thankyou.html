@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Ya estás dentro! — Domina Tu Dinero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@800;900&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:        #1E9E5E;
+    --green-dark:   #167A49;
+    --green-light:  #E8F7F0;
+    --purple:       #6B3FA0;
+    --purple-light: #F5F2FA;
+    --dark:         #111118;
+    --body:         #2E2E3A;
+    --muted:        #7A7A8C;
+    --white:        #FFFFFF;
+    --off-white:    #F7F7F9;
+    --border:       #E4E4EC;
+    --px:           20px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--white);
+    color: var(--body);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    background: var(--green);
+    color: white;
+    text-align: center;
+    padding: 10px var(--px);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px var(--px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-handle {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 400;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* HERO CONFIRMACION */
+  .confirm-hero {
+    text-align: center;
+    padding: 56px var(--px) 40px;
+    max-width: 720px;
+    margin: 0 auto;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .check-circle {
+    width: 72px;
+    height: 72px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 28px;
+    box-shadow: 0 8px 32px rgba(30,158,94,0.35);
+    animation: popIn 0.6s 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .check-circle::after {
+    content: '';
+    width: 14px;
+    height: 24px;
+    border: 3px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-3px);
+  }
+
+  .confirm-hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.2rem, 8vw, 3.8rem);
+    font-weight: 900;
+    color: var(--dark);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .confirm-hero h1 span { color: var(--green); }
+
+  .confirm-hero p {
+    font-size: clamp(1rem, 3vw, 1.15rem);
+    color: var(--muted);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  /* FECHA DESTACADA */
+  .date-banner {
+    background: var(--dark);
+    margin: 0 var(--px);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 48px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.7s 0.15s ease both;
+  }
+
+  .date-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, rgba(107,63,160,0.4) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, rgba(30,158,94,0.3) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .date-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .date-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green);
+  }
+
+  .date-main {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-weight: 900;
+    color: white;
+    line-height: 1.1;
+  }
+
+  .date-times {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .time-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    padding: 5px 14px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .time-pill strong {
+    color: white;
+    font-weight: 700;
+  }
+
+  /* PASOS */
+  .steps-section {
+    max-width: 680px;
+    margin: 0 auto 56px;
+    padding: 0 var(--px);
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .steps-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 900;
+    color: var(--dark);
+    text-align: center;
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+  }
+
+  .step-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .step-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+  }
+
+  .step-card.green::before { background: var(--green); }
+  .step-card.purple::before { background: var(--purple); }
+
+  .step-number {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .step-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 8px;
+  }
+
+  .step-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  /* VIDEO dentro del step */
+  .step-video {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: var(--off-white);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .step-video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .step-video .video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: var(--off-white);
+  }
+
+  .play-btn-sm {
+    width: 52px;
+    height: 52px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(30,158,94,0.4);
+  }
+
+  .play-btn-sm::after {
+    content: '';
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 16px;
+    border-color: transparent transparent transparent white;
+    margin-left: 3px;
+  }
+
+  .video-placeholder p {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  /* BOTONES DE ACCION */
+  .btn-calendar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(30,158,94,0.35);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    margin-bottom: 10px;
+  }
+
+  .btn-calendar:hover { background: var(--green-dark); transform: translateY(-2px); }
+  .btn-calendar:active { transform: translateY(0); }
+
+  .btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(37,211,102,0.35);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .btn-whatsapp:hover { background: #1da851; transform: translateY(-2px); }
+  .btn-whatsapp:active { transform: translateY(0); }
+
+  .btn-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  /* Opciones de calendario desplegable */
+  .calendar-options {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .calendar-options.open { display: flex; }
+
+  .cal-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    background: var(--off-white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: border-color 0.2s, background 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .cal-option:hover { border-color: var(--green); background: var(--green-light); }
+
+  .cal-option img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+  }
+
+  /* NOTA FINAL */
+  .closing-note {
+    max-width: 560px;
+    margin: 0 auto 56px;
+    padding: 0 var(--px);
+    text-align: center;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+
+  .closing-note p {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .closing-note strong { color: var(--body); }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark);
+    text-align: center;
+    padding: 32px var(--px);
+    color: rgba(255,255,255,0.35);
+    font-size: 0.78rem;
+    line-height: 1.8;
+  }
+
+  footer strong { color: rgba(255,255,255,0.6); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* TABLET */
+  @media (min-width: 600px) {
+    :root { --px: 32px; }
+    .date-banner { padding: 36px 40px; margin: 0 auto 48px; }
+    .date-times { gap: 10px; }
+    .step-card { padding: 32px 28px; }
+  }
+
+  /* DESKTOP */
+  @media (min-width: 900px) {
+    :root { --px: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">🎉 ¡Registro confirmado! Te esperamos el 30 de mayo</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    Daniel Piñero
+    <span class="nav-handle">@danielpinerop</span>
+  </div>
+</nav>
+
+<!-- HERO CONFIRMACIÓN -->
+<section class="confirm-hero">
+  <div class="check-circle"></div>
+  <h1>¡Ya estás<span> dentro!</span></h1>
+  <p>Tu lugar en la Masterclass <strong>Domina Tu Dinero</strong> está reservado. Ahora sigue estos dos pasos para que no te la pierdas.</p>
+</section>
+
+<!-- FECHA -->
+<div style="padding: 0 var(--px); max-width:680px; margin: 0 auto 40px; animation: fadeUp 0.7s 0.1s ease both;">
+  <div class="date-banner">
+    <div class="date-wrap">
+      <div class="date-label">Fecha del evento</div>
+      <div class="date-main">Jueves 30 de Mayo</div>
+      <div class="date-times">
+        <span class="time-pill"><strong>10:00 AM</strong> Miami · Caracas</span>
+        <span class="time-pill"><strong>9:00 AM</strong> Panamá · Bogotá · Quito</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASOS -->
+<section class="steps-section">
+  <h2 class="steps-title">Dos pasos y listo 👇</h2>
+
+  <!-- VIDEO GENERAL -->
+  <div class="step-video" style="margin-bottom:28px;">
+    <!--
+      CUANDO TENGAS EL VIDEO reemplaza .video-placeholder con:
+      <iframe src="https://www.youtube.com/embed/VIDEO_ID?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+    -->
+    <div class="video-placeholder">
+      <div class="play-btn-sm"></div>
+      <p>Video de Daniel — próximamente</p>
+    </div>
+  </div>
+
+  <!-- PASO 1: CALENDARIO -->
+  <div class="step-card green">
+    <div class="step-number">Paso 01</div>
+    <div class="step-title">Agrega la clase a tu calendario</div>
+    <p class="step-desc">Para que no se te olvide — bloquea las 3 horas en tu agenda ahora mismo.</p>
+
+    <!-- BOTÓN CALENDARIO -->
+    <button class="btn-calendar" onclick="toggleCalendar()">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      Agregar a mi calendario →
+    </button>
+
+    <!-- OPCIONES DE CALENDARIO -->
+    <div class="calendar-options" id="calOptions">
+      <a class="cal-option" href="https://www.google.com/calendar/render?action=TEMPLATE&text=Masterclass+Domina+Tu+Dinero&dates=20250530T140000Z/20250530T170000Z&details=Masterclass+gratuita+con+Daniel+Piñero.+Domina+Tu+Dinero.&location=Online" target="_blank" rel="noopener">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Google Calendar">
+        Google Calendar
+      </a>
+      <a class="cal-option" href="data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:20250530T140000Z%0ADTEND:20250530T170000Z%0ASUMMARY:Masterclass Domina Tu Dinero%0ADESCRIPTION:Masterclass gratuita con Daniel Piñero%0ALOCATION:Online%0AEND:VEVENT%0AEND:VCALENDAR" download="masterclass-domina-tu-dinero.ics">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Apple Calendar / Outlook (.ics)
+      </a>
+    </div>
+  </div>
+
+  <!-- PASO 2: WHATSAPP -->
+  <div class="step-card purple">
+    <div class="step-number">Paso 02</div>
+    <div class="step-title">Únete al grupo de WhatsApp</div>
+    <p class="step-desc">Ahí te voy a enviar recordatorios, el link de la clase y toda la info importante antes del evento.</p>
+
+    <!--
+      CUANDO TENGAS EL LINK DEL GRUPO reemplaza TU_LINK_WHATSAPP:
+    -->
+    <a class="btn-whatsapp" href="TU_LINK_WHATSAPP" target="_blank" rel="noopener">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+      Unirme al grupo de WhatsApp →
+    </a>
+  </div>
+</section>
+
+<!-- NOTA CIERRE -->
+<div class="closing-note">
+  <p>Si tienes alguna duda escríbeme directo en Instagram <strong>@danielpinerop</strong>.<br>¡Nos vemos el 30 de mayo! 🚀</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Daniel Piñero</strong><br>
+  © 2025 · Todos los derechos reservados<br>
+  Masterclass Domina Tu Dinero — 30 de mayo
+</footer>
+
+<script>
+  function toggleCalendar() {
+    const opts = document.getElementById('calOptions');
+    opts.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
