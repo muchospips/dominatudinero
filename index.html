@@ -1,116 +1,864 @@
-const https = require('https');
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domina Tu Dinero — Masterclass Gratuita con Daniel Piñero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@800;900&family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-function httpsPost(url, data, headers) {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify(data);
-    const urlObj = new URL(url);
-    const options = {
-      hostname: urlObj.hostname,
-      path: urlObj.pathname,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(body),
-        ...headers
-      }
-    };
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: data }));
-    });
-    req.on('error', reject);
-    req.write(body);
-    req.end();
-  });
-}
-
-function httpsGet(url, headers) {
-  return new Promise((resolve, reject) => {
-    const urlObj = new URL(url);
-    const options = {
-      hostname: urlObj.hostname,
-      path: urlObj.pathname + urlObj.search,
-      method: 'GET',
-      headers
-    };
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: data }));
-    });
-    req.on('error', reject);
-    req.end();
-  });
-}
-
-exports.handler = async function(event) {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+  :root {
+    --green:        #1E9E5E;
+    --green-dark:   #167A49;
+    --green-light:  #E8F7F0;
+    --purple:       #6B3FA0;
+    --purple-light: #F5F2FA;
+    --purple-mid:   #C4A8E8;
+    --dark:         #111118;
+    --body:         #2E2E3A;
+    --muted:        #7A7A8C;
+    --white:        #FFFFFF;
+    --off-white:    #F7F7F9;
+    --border:       #E4E4EC;
+    --px:           20px;
   }
 
-  try {
-    const { nombre, instagram, email } = JSON.parse(event.body);
+  html { scroll-behavior: smooth; }
 
-    if (!email || !nombre) {
-      return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Faltan campos requeridos' }) };
-    }
-
-    const API_KEY = process.env.SYSTEME_API_KEY;
-
-    // 1. Crear contacto
-    const contactPayload = {
-      email: String(email).trim(),
-      firstName: String(nombre).trim(),
-      lastName: String(instagram || '').trim()
-    };
-
-    console.log('Sending to Systeme:', JSON.stringify(contactPayload));
-
-    const contactRes = await httpsPost(
-      'https://api.systeme.io/api/contacts',
-      contactPayload,
-      { 'X-API-Key': API_KEY }
-    );
-
-    console.log('Contact response:', contactRes.status, contactRes.body);
-
-    let contactData = {};
-    try { contactData = JSON.parse(contactRes.body); } catch(e) {}
-    const contactId = contactData.id;
-
-    if (contactId) {
-      // 2. Buscar etiqueta
-      const tagsRes = await httpsGet(
-        'https://api.systeme.io/api/tags?limit=50',
-        { 'X-API-Key': API_KEY }
-      );
-      let tagsData = {};
-      try { tagsData = JSON.parse(tagsRes.body); } catch(e) {}
-      const tag = tagsData.items?.find(t => t.name === 'Masterclass DTD');
-
-      // 3. Asignar etiqueta
-      if (tag) {
-        await httpsPost(
-          `https://api.systeme.io/api/contacts/${contactId}/tags`,
-          { tagId: tag.id },
-          { 'X-API-Key': API_KEY }
-        );
-      }
-    }
-
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true })
-    };
-
-  } catch (err) {
-    console.log('Error:', err.message);
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ success: true })
-    };
+  body {
+    background: var(--white);
+    color: var(--body);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.65;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
   }
-};
+
+  img { max-width: 100%; display: block; }
+
+  /* TOP BAR */
+  .top-bar {
+    background: var(--purple);
+    color: white;
+    text-align: center;
+    padding: 10px var(--px);
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .top-bar .pill {
+    display: inline-block;
+    background: var(--green);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-right: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    vertical-align: middle;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px var(--px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    color: var(--dark);
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav-handle {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 400;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 48px var(--px) 32px;
+    text-align: center;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--off-white);
+    border: 1.5px solid var(--purple);
+    color: var(--purple);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 22px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.8rem, 14vw, 6rem);
+    font-weight: 900;
+    line-height: 1;
+    color: var(--dark);
+    letter-spacing: -0.02em;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero h1 .accent {
+    color: var(--green);
+    display: block;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    color: var(--muted);
+    margin: 18px auto 0;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 540px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .hero-sub strong { color: var(--body); font-weight: 700; }
+
+  /* VIDEO */
+  .video-section {
+    padding: 32px var(--px) 0;
+    max-width: 780px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    background: var(--off-white);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    box-shadow: 0 12px 40px rgba(107,63,160,0.1), 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .video-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: var(--off-white);
+  }
+
+  .play-btn {
+    width: 60px;
+    height: 60px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(30,158,94,0.4);
+  }
+
+  .play-btn::after {
+    content: '';
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 9px 0 9px 18px;
+    border-color: transparent transparent transparent white;
+    margin-left: 4px;
+  }
+
+  .video-placeholder p {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 0.86rem;
+  }
+
+  /* FORM */
+  .form-wrap {
+    padding: 28px var(--px) 0;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .form-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px 20px;
+    box-shadow: 0 6px 24px rgba(107,63,160,0.07);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .form-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--purple), var(--green));
+  }
+
+  .form-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .form-sub {
+    color: var(--muted);
+    font-size: 0.86rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 12px; }
+
+  .field label {
+    display: block;
+    font-size: 0.73rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--body);
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--off-white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--dark);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    /* 16px prevents zoom on iOS */
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .field input::placeholder { color: #BCBCCC; }
+  .field input:focus {
+    border-color: var(--purple);
+    box-shadow: 0 0 0 3px rgba(107,63,160,0.1);
+  }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 6px 20px rgba(30,158,94,0.35);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .submit-btn:hover  { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(30,158,94,0.4); }
+  .submit-btn:active { transform: translateY(0); }
+
+  .form-disclaimer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.74rem;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+
+  /* DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 52px var(--px);
+    max-width: 780px;
+    margin: 0 auto;
+    color: var(--muted);
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .section-divider::before,
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* SHARED SECTION STYLES */
+  .section-eyebrow {
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.7rem, 7vw, 3rem);
+    font-weight: 900;
+    color: var(--dark);
+    text-align: center;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 36px;
+  }
+
+  /* LEARN */
+  .learn-section {
+    padding: 0 var(--px) 56px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .learn-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .learn-card {
+    background: var(--off-white);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 20px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .learn-card:active {
+    transform: scale(0.99);
+  }
+
+  .card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+  }
+
+  .card-icon.g { background: var(--green-light); }
+  .card-icon.p { background: var(--purple-light); }
+
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 7px;
+  }
+
+  .card-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  /* FOR WHOM */
+  .for-section {
+    background: var(--off-white);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 56px var(--px);
+    margin-bottom: 56px;
+  }
+
+  .for-inner { max-width: 780px; margin: 0 auto; }
+
+  .for-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .for-list li {
+    background: white;
+    border-radius: 12px;
+    padding: 15px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.93rem;
+    color: var(--body);
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    line-height: 1.5;
+  }
+
+  .check {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+
+  .check::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border: 2px solid white;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg) translateY(-1px);
+  }
+
+  /* PROSPERITY */
+  .prosperity-section {
+    padding: 0 var(--px) 56px;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .prosperity-card {
+    background: var(--dark);
+    border-radius: 16px;
+    padding: 44px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .prosperity-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 25% 50%, rgba(107,63,160,0.45) 0%, transparent 60%),
+                radial-gradient(ellipse at 75% 50%, rgba(30,158,94,0.35) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .prosperity-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(1.5rem, 6vw, 2.8rem);
+    font-weight: 900;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .prosperity-card p {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.95rem;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    line-height: 1.7;
+  }
+
+  .prosperity-card p strong { color: var(--green); font-weight: 700; }
+
+  /* REPEAT FORM */
+  .repeat-form-wrap {
+    background: var(--green-light);
+    padding: 56px var(--px);
+  }
+
+  .repeat-inner {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .repeat-inner .section-eyebrow { color: var(--green-dark); }
+  .repeat-inner .section-title { margin-bottom: 28px; }
+  .repeat-inner .form-card { text-align: left; }
+
+  /* BIO */
+  .bio-section {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px var(--px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+  }
+
+  .bio-img-wrap {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 3px solid var(--purple);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--off-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--purple);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 10px;
+  }
+
+  .bio-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+
+  .bio-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 4px;
+  }
+
+  .bio-handle { color: var(--green); font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+  .bio-text { color: var(--muted); font-size: 0.9rem; line-height: 1.7; max-width: 480px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--dark);
+    text-align: center;
+    padding: 32px var(--px);
+    color: rgba(255,255,255,0.35);
+    font-size: 0.78rem;
+    line-height: 1.8;
+  }
+
+  footer strong { color: rgba(255,255,255,0.6); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── TABLET 600px+ ── */
+  @media (min-width: 600px) {
+    :root { --px: 32px; }
+
+    .hero { padding-top: 64px; }
+    .form-card { padding: 32px 32px 28px; }
+    .form-title { font-size: 1.55rem; }
+
+    .learn-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .for-list { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    .prosperity-card { padding: 52px 44px; }
+
+    .bio-section {
+      flex-direction: row;
+      text-align: left;
+      gap: 36px;
+    }
+
+    .bio-img-wrap { width: 130px; height: 130px; }
+    .bio-text { max-width: none; }
+  }
+
+  /* ── DESKTOP 900px+ ── */
+  @media (min-width: 900px) {
+    :root { --px: 40px; }
+
+    .hero { padding-top: 80px; }
+    .video-wrapper { border-radius: 16px; }
+    .form-card { padding: 40px 40px 36px; }
+    .form-title { font-size: 1.6rem; }
+    .learn-card { padding: 28px 24px; }
+    .prosperity-card { padding: 60px 56px; }
+    .bio-img-wrap { width: 140px; height: 140px; }
+
+    .learn-card:hover {
+      border-color: var(--purple-mid);
+      box-shadow: 0 8px 24px rgba(107,63,160,0.08);
+      transform: translateY(-3px);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <span class="pill">Gratis</span>
+  📅 Sábado 30 de mayo · 10:00 AM Miami / Caracas · 9:00 AM Panamá / Bogotá / Quito
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    Daniel Piñero
+    <span class="nav-handle">@danielpinerop</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🎁 Masterclass Gratuita · 30 de Mayo</div>
+  <h1>Domina<span class="accent">Tu Dinero</span></h1>
+  <p class="hero-sub">
+    Deja de correr detrás de tus gastos.<br>
+    <strong>Aprende a construir un sistema donde tu dinero trabaja para ti</strong> — no al revés.
+  </p>
+</section>
+
+<!-- VIDEO -->
+<section class="video-section">
+  <div class="video-wrapper">
+    <!--
+      CUANDO TENGAS EL VIDEO reemplaza .video-placeholder con:
+      YouTube: <iframe src="https://www.youtube.com/embed/VIDEO_ID" allowfullscreen></iframe>
+      Loom:    <iframe src="https://www.loom.com/embed/VIDEO_ID" allowfullscreen></iframe>
+    -->
+    <iframe 
+      src="https://www.youtube.com/embed/nU0ofWG0njc?rel=0&modestbranding=1" 
+      allowfullscreen
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;">
+    </iframe>
+  </div>
+</section>
+
+<!-- FORM 1 — justo debajo del video -->
+<div class="form-wrap reveal" id="registro">
+  <div class="form-card">
+    <div class="form-title">Regístrate aquí mismo</div>
+    <div class="form-sub">Sábado 30 de mayo · 10:00 AM Miami / Caracas · 9:00 AM Panamá / Bogotá / Quito</div>
+    <div id="form1-fields">
+      <div class="field">
+        <label>Tu nombre</label>
+        <input type="text" id="f1-nombre" placeholder="¿Cómo te llamo?" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>Instagram</label>
+        <input type="text" id="f1-instagram" placeholder="@tu_usuario" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="f1-email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div id="f1-error" style="color:#E53E3E;font-size:0.85rem;margin-bottom:8px;display:none;"></div>
+      <button class="submit-btn" onclick="submitForm('f1')">¡Quiero mi lugar gratis! →</button>
+    </div>
+    <div id="f1-loading" style="display:none;text-align:center;padding:20px;color:var(--muted);">Registrando... ⏳</div>
+    <p class="form-disclaimer" style="margin-top:12px;">Tu primer paso hacia la libertad financiera empieza aquí. 🚀</p>
+  </div>
+</div>
+
+<!-- DIVIDER -->
+<div class="section-divider reveal">O sigue leyendo</div>
+
+<!-- QUÉ VAS A APRENDER -->
+<section class="learn-section reveal">
+  <p class="section-eyebrow">Lo que cubrimos</p>
+  <h2 class="section-title">Todo en una sola sesión</h2>
+  <div class="learn-grid">
+    <div class="learn-card">
+      <div class="card-icon g">💰</div>
+      <div class="card-title">Presupuesto Real</div>
+      <p class="card-desc">Cómo construir un presupuesto que funcione de verdad — no uno que abandones a los tres días.</p>
+    </div>
+    <div class="learn-card">
+      <div class="card-icon p">📋</div>
+      <div class="card-title">Orden Financiero</div>
+      <p class="card-desc">Un sistema para darle nombre a cada peso que entra y saber exactamente dónde está tu dinero.</p>
+    </div>
+    <div class="learn-card">
+      <div class="card-icon g">🧠</div>
+      <div class="card-title">Mentalidad del Dinero</div>
+      <p class="card-desc">Los patrones que te mantienen gastando más de lo que ganas — y cómo romperlos de una vez.</p>
+    </div>
+    <div class="learn-card">
+      <div class="card-icon p">🔄</div>
+      <div class="card-title">El Ciclo de la Prosperidad</div>
+      <p class="card-desc">El modelo que conecta orden, ahorro, inversión y libertad — y cómo entrar a él desde donde estás hoy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PARA QUIÉN -->
+<section class="for-section reveal">
+  <div class="for-inner">
+    <p class="section-eyebrow">¿Es para ti?</p>
+    <h2 class="section-title">Esta clase es para ti si...</h2>
+    <ul class="for-list">
+      <li><span class="check"></span>Llegas a fin de mes y no sabes a dónde fue tu dinero</li>
+      <li><span class="check"></span>Quieres empezar a ahorrar pero sientes que "no te alcanza"</li>
+      <li><span class="check"></span>Tienes deudas y no sabes por dónde atacarlas</li>
+      <li><span class="check"></span>Nadie te enseñó a manejar tus finanzas personales</li>
+      <li><span class="check"></span>Quieres un sistema claro, no más teoría sin aplicación</li>
+      <li><span class="check"></span>Estás listo para que tu dinero empiece a trabajar para ti</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROSPERITY -->
+<section class="prosperity-section reveal">
+  <div class="prosperity-card">
+    <h2>Al final te llevo al<br>Ciclo de la Prosperidad</h2>
+    <p>No es magia ni fórmulas complicadas. Es un modelo de flujo que, una vez que lo entiendes, <strong>no puedes desverlo</strong>. Ahí es donde empieza la verdadera libertad financiera.</p>
+  </div>
+</section>
+
+<!-- FORM 2 — repetido abajo -->
+<div class="repeat-form-wrap reveal">
+  <div class="repeat-inner">
+    <p class="section-eyebrow">¿Listo?</p>
+    <h2 class="section-title">Reserva tu lugar.<br>Es gratis.</h2>
+    <div class="form-card">
+      <div class="form-title">Regístrate aquí mismo</div>
+      <div class="form-sub">Sábado 30 de mayo · 10:00 AM Miami / Caracas · 9:00 AM Panamá / Bogotá / Quito</div>
+      <div id="form2-fields">
+        <div class="field">
+          <label>Tu nombre</label>
+          <input type="text" id="f2-nombre" placeholder="¿Cómo te llamo?" autocomplete="name">
+        </div>
+        <div class="field">
+          <label>Instagram</label>
+          <input type="text" id="f2-instagram" placeholder="@tu_usuario" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="f2-email" placeholder="tu@email.com" autocomplete="email">
+        </div>
+        <div id="f2-error" style="color:#E53E3E;font-size:0.85rem;margin-bottom:8px;display:none;"></div>
+        <button class="submit-btn" onclick="submitForm('f2')">¡Quiero mi lugar gratis! →</button>
+      </div>
+      <div id="f2-loading" style="display:none;text-align:center;padding:20px;color:var(--muted);">Registrando... ⏳</div>
+      <p class="form-disclaimer" style="margin-top:12px;">Tu primer paso hacia la libertad financiera empieza aquí. 🚀</p>
+    </div>
+  </div>
+</div>
+
+<!-- BIO -->
+<section class="bio-section reveal">
+  <!--
+    Reemplaza div.bio-img-wrap con:
+    <div class="bio-img-wrap"><img src="tu-foto.jpg" alt="Daniel Piñero"></div>
+  -->
+  <img class="bio-img-wrap" src="Daniel.png" alt="Daniel Piñero">
+  <div class="bio-text-block">
+    <div class="bio-name">Daniel Piñero</div>
+    <div class="bio-handle">@danielpinerop</div>
+    <p class="bio-text">Llevo años ayudando a personas a ordenar su dinero y construir un sistema que funcione. Creé el método AES porque necesitaba algo simple, honesto y que se pudiera aplicar desde hoy. Esta masterclass es mi forma de decirte gracias por estar aquí.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <strong>Daniel Piñero</strong><br>
+  © 2026 · Todos los derechos reservados<br>
+  Esta masterclass es completamente gratuita. Pero entregaré como si hubieses pagado miles.
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.06 });
+  reveals.forEach(r => observer.observe(r));
+
+  // Form submission
+  async function submitForm(prefix) {
+    const nombre = document.getElementById(prefix + '-nombre').value.trim();
+    const instagram = document.getElementById(prefix + '-instagram').value.trim();
+    const email = document.getElementById(prefix + '-email').value.trim();
+    const errorEl = document.getElementById(prefix + '-error');
+    const loadingEl = document.getElementById(prefix + '-loading');
+    // form1-fields or form2-fields based on prefix f1/f2
+    const fieldsId = prefix === 'f1' ? 'form1-fields' : 'form2-fields';
+    const fieldsEl = document.getElementById(fieldsId);
+
+    errorEl.style.display = 'none';
+
+    if (!nombre) { errorEl.textContent = 'Por favor ingresa tu nombre.'; errorEl.style.display = 'block'; return; }
+    if (!instagram) { errorEl.textContent = 'Por favor ingresa tu usuario de Instagram.'; errorEl.style.display = 'block'; return; }
+    if (!email || !email.includes('@')) { errorEl.textContent = 'Por favor ingresa un email válido.'; errorEl.style.display = 'block'; return; }
+
+    fieldsEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+
+    try {
+      const res = await fetch('/.netlify/functions/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, instagram, email })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        window.location.href = '/thankyou.html';
+      } else {
+        throw new Error(data.error || 'Error desconocido');
+      }
+    } catch(err) {
+      fieldsEl.style.display = 'block';
+      loadingEl.style.display = 'none';
+      errorEl.textContent = 'Hubo un error. Intenta de nuevo.';
+      errorEl.style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>
