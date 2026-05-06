@@ -61,8 +61,10 @@ exports.handler = async function(event) {
     // 1. Crear contacto
     const contactPayload = {
       email: String(email).trim(),
-      firstName: String(nombre).trim(),
-      lastName: String(instagram || '').trim()
+      fields: [
+        { slug: 'first_name', value: String(nombre).trim() },
+        { slug: 'surname', value: String(instagram || '').trim() }
+      ]
     };
 
     console.log('Sending to Systeme:', JSON.stringify(contactPayload));
