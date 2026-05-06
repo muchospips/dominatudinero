@@ -59,9 +59,17 @@ exports.handler = async function(event) {
     const API_KEY = process.env.SYSTEME_API_KEY;
 
     // 1. Crear contacto
+    const contactPayload = {
+      email: String(email).trim(),
+      firstName: String(nombre).trim(),
+      lastName: String(instagram || '').trim()
+    };
+
+    console.log('Sending to Systeme:', JSON.stringify(contactPayload));
+
     const contactRes = await httpsPost(
       'https://api.systeme.io/api/contacts',
-      { email, firstName: nombre, lastName: instagram || '' },
+      contactPayload,
       { 'X-API-Key': API_KEY }
     );
 
