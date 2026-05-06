@@ -825,11 +825,14 @@
     const email = document.getElementById(prefix + '-email').value.trim();
     const errorEl = document.getElementById(prefix + '-error');
     const loadingEl = document.getElementById(prefix + '-loading');
-    const fieldsEl = document.getElementById(prefix + '-fields');
+    // form1-fields or form2-fields based on prefix f1/f2
+    const fieldsId = prefix === 'f1' ? 'form1-fields' : 'form2-fields';
+    const fieldsEl = document.getElementById(fieldsId);
 
     errorEl.style.display = 'none';
 
     if (!nombre) { errorEl.textContent = 'Por favor ingresa tu nombre.'; errorEl.style.display = 'block'; return; }
+    if (!instagram) { errorEl.textContent = 'Por favor ingresa tu usuario de Instagram.'; errorEl.style.display = 'block'; return; }
     if (!email || !email.includes('@')) { errorEl.textContent = 'Por favor ingresa un email válido.'; errorEl.style.display = 'block'; return; }
 
     fieldsEl.style.display = 'none';
