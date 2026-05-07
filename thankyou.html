@@ -493,6 +493,24 @@
         <span class="time-pill"><strong>10:00 AM</strong> Miami · Caracas</span>
         <span class="time-pill"><strong>9:00 AM</strong> Panamá · Bogotá · Quito</span>
       </div>
+      <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;min-width:58px;text-align:center;">
+          <span style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:white;display:block;line-height:1;" id="cd2-days">--</span>
+          <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:block;margin-top:4px;">Días</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;min-width:58px;text-align:center;">
+          <span style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:white;display:block;line-height:1;" id="cd2-hours">--</span>
+          <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:block;margin-top:4px;">Horas</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;min-width:58px;text-align:center;">
+          <span style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:white;display:block;line-height:1;" id="cd2-mins">--</span>
+          <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:block;margin-top:4px;">Min</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;min-width:58px;text-align:center;">
+          <span style="font-family:'Fraunces',serif;font-size:1.6rem;font-weight:900;color:white;display:block;line-height:1;" id="cd2-secs">--</span>
+          <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:block;margin-top:4px;">Seg</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -566,7 +584,7 @@
 <!-- FOOTER -->
 <footer>
   <strong>Daniel Piñero</strong><br>
-  © 2025 · Todos los derechos reservados<br>
+  © 2026 · Todos los derechos reservados<br>
   Masterclass Domina Tu Dinero — 30 de mayo
 </footer>
 
@@ -575,6 +593,24 @@
     const opts = document.getElementById('calOptions');
     opts.classList.toggle('open');
   }
+
+  // Countdown
+  const eventDate = new Date('2026-05-30T14:00:00Z');
+  function updateCountdown() {
+    const diff = eventDate - new Date();
+    if (diff <= 0) return;
+    const pad = n => String(Math.floor(n)).padStart(2,'0');
+    const d = document.getElementById('cd2-days');
+    const h = document.getElementById('cd2-hours');
+    const m = document.getElementById('cd2-mins');
+    const s = document.getElementById('cd2-secs');
+    if (d) d.textContent = pad(diff / (1000*60*60*24));
+    if (h) h.textContent = pad((diff % (1000*60*60*24)) / (1000*60*60));
+    if (m) m.textContent = pad((diff % (1000*60*60)) / (1000*60));
+    if (s) s.textContent = pad((diff % (1000*60)) / 1000);
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 </script>
 
 </body>
